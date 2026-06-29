@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Steven Owen – CV</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface2: #22263a;
+      --accent: #4f8ef7;
+      --accent2: #7c3aed;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --border: #2d3148;
+      --tag-bg: #1e2a4a;
+      --tag-text: #93c5fd;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+    .page {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+    }
+    /* ── Header ── */
+    header {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: start;
+      gap: 24px;
+      padding: 40px 40px 36px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      margin-bottom: 28px;
+      position: relative;
+      overflow: hidden;
+    }
+    header::before {
+      content: '';
+      position: absolute;
+      top: -60px; right: -60px;
+      width: 260px; height: 260px;
+      background: radial-gradient(circle, rgba(79,142,247,0.15) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    header::after {
+      content: '';
+      position: absolute;
+      bottom: -40px; left: 30%;
+      width: 200px; height: 200px;
+      background: radial-gradient(circle, rgba(124,58,237,0.1) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    /* Header left: name + role + tags */
+    .header-left {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    .header-name h1 {
+      font-size: 2.4rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #e2e8f0 0%, #93c5fd 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .header-name .role {
+      font-size: 1rem;
+      color: var(--accent);
+      font-weight: 500;
+      margin-top: 4px;
+      letter-spacing: 0.5px;
+    }
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px 12px;
+      margin-top: 14px;
+    }
+    .contact-item {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 0.82rem;
+      color: var(--muted);
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 5px 10px;
+    }
+    .contact-item svg { width: 13px; height: 13px; flex-shrink: 0; color: var(--accent); }
+    .contact-item a { color: var(--muted); text-decoration: none; }
+    .contact-item a:hover { color: var(--accent); }
+    /* ── Collapsible personal details ── */
+    .details-toggle {
+      margin-top: 10px;
+    }
+    .details-toggle summary {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--accent);
+      cursor: pointer;
+      letter-spacing: 0.5px;
+      list-style: none;
+      padding: 4px 0;
+      user-select: none;
+    }
+    .details-toggle summary::-webkit-details-marker { display: none; }
+    .details-toggle summary::after {
+      content: '▾';
+      font-size: 0.9rem;
+      transition: transform 0.2s;
+    }
+    .details-toggle[open] summary::after { transform: rotate(-180deg); }
+    .details-toggle summary:hover { opacity: 0.8; }
+    .personal-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px 12px;
+      margin-top: 8px;
+    }
+    .personal-item {
+      display: flex;
+      flex-direction: column;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 10px;
+    }
+    .personal-item .p-label {
+      font-size: 0.65rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--accent);
+      margin-bottom: 2px;
+    }
+    .personal-item .p-value {
+      font-size: 0.8rem;
+      color: var(--text);
+      font-weight: 500;
+    }
+    .header-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 16px;
+    }
+    .tag {
+      background: var(--tag-bg);
+      color: var(--tag-text);
+      border: 1px solid rgba(79,142,247,0.25);
+      border-radius: 6px;
+      padding: 3px 10px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 0.3px;
+    }
+    /* ── Profile photo (top-right of header) ── */
+    .profile-photo-wrap {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 3px solid rgba(79,142,247,0.5);
+      box-shadow: 0 0 0 6px rgba(79,142,247,0.1), 0 8px 24px rgba(0,0,0,0.4);
+      flex-shrink: 0;
+      position: relative;
+      z-index: 1;
+    }
+    .profile-photo {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: 40% 22%;
+      transform: scale(1.4);
+      transform-origin: 40% 22%;
+    }
+    /* ── Two-column body ── */
+    .body-grid {
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 24px;
+      align-items: start;
+    }
+    /* ── Cards ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 28px 32px;
+      margin-bottom: 20px;
+    }
+    .card:last-child { margin-bottom: 0; }
+    .section-title {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+    /* ── Qualifications grouped ── */
+    .qual-group-label {
+      font-size: 0.72rem; font-weight: 600; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--accent);
+      margin: 14px 0 6px;
+    }
+    .qual-group-label:first-of-type { margin-top: 0; }
+    .qual-cert-grid { display: flex; flex-direction: column; gap: 6px; }
+    .qual-tile {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 8px; background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 8px; padding: 9px 12px; font-size: 0.82rem;
+      color: var(--text); cursor: pointer;
+      transition: border-color 0.2s, transform 0.15s;
+    }
+    .qual-tile:hover { border-color: var(--accent); transform: translateX(2px); }
+    .view-cert {
+      font-size: 0.72rem; color: var(--accent); white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .refresher-badge {
+      font-size: 0.68rem; background: rgba(79,142,247,0.12);
+      color: var(--accent); border: 1px solid rgba(79,142,247,0.25);
+      border-radius: 100px; padding: 1px 6px; margin-left: 4px;
+    }
+    /* ── Certificates ── */
+    .certs-grid { display: flex; flex-direction: column; gap: 12px; }
+    .cert-card {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: var(--surface2);
+      border: 1px solid rgba(79,142,247,0.25);
+      border-radius: 10px;
+      padding: 14px 16px;
+      text-decoration: none;
+      color: inherit;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .cert-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+    .cert-badge-img { width: 64px; height: 64px; object-fit: contain; flex-shrink: 0; }
+    .cert-info h4 { font-size: 0.9rem; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+    .cert-info p { font-size: 0.78rem; color: var(--muted); line-height: 1.4; }
+    .cert-link-label {
+      font-size: 0.75rem;
+      color: var(--accent);
+      margin-top: 5px;
+      display: block;
+      font-weight: 600;
+    }
+    /* ── Experience entries ── */
+    .entry { margin-bottom: 28px; }
+    .entry:last-child { margin-bottom: 0; }
+    .entry-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 2px;
+    }
+    .entry-title { font-size: 1rem; font-weight: 600; color: var(--text); }
+    .entry-date {
+      font-size: 0.75rem;
+      color: var(--muted);
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2px 10px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .entry-company { font-size: 0.85rem; color: var(--accent); font-weight: 500; margin-bottom: 4px; }
+    .company-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.78rem;
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 500;
+      margin-bottom: 10px;
+      opacity: 0.8;
+      transition: opacity 0.2s;
+    }
+    .company-link:hover { opacity: 1; text-decoration: underline; }
+    .entry ul { list-style: none; padding: 0; }
+    .entry ul li {
+      font-size: 0.85rem;
+      color: var(--muted);
+      padding: 3px 0 3px 16px;
+      position: relative;
+      line-height: 1.6;
+    }
+    .entry ul li::before {
+      content: '▸';
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+      font-size: 0.7rem;
+      top: 5px;
+    }
+    .entry-divider { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
+    .entry-note { font-size: 0.8rem; color: var(--muted); font-style: italic; margin-top: 8px; }
+    /* ── Sidebar ── */
+    .sidebar .card { margin-bottom: 20px; }
+    .skill-group { margin-bottom: 18px; }
+    .skill-group:last-child { margin-bottom: 0; }
+    .skill-group-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .skill-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .skill-tag {
+      background: var(--surface2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 3px 9px;
+      font-size: 0.75rem;
+    }
+    .qual-list { list-style: none; padding: 0; }
+    .qual-list li {
+      font-size: 0.82rem;
+      color: var(--muted);
+      padding: 5px 0 5px 18px;
+      position: relative;
+      border-bottom: 1px solid var(--border);
+      line-height: 1.5;
+    }
+    .qual-list li:last-child { border-bottom: none; }
+    .qual-list li::before { content: '✓'; position: absolute; left: 0; color: #34d399; font-size: 0.7rem; top: 6px; }
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.82rem;
+      padding: 6px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .detail-row:last-child { border-bottom: none; }
+    .detail-label { color: var(--muted); }
+    .detail-value { color: var(--text); font-weight: 500; }
+    /* ── References ── */
+    .ref-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .ref-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+    }
+    .ref-name { font-size: 0.9rem; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+    .ref-role { font-size: 0.75rem; color: var(--accent); margin-bottom: 8px; }
+    .ref-detail { font-size: 0.78rem; color: var(--muted); line-height: 1.6; }
+    /* ── Responsive ── */
+    @media (max-width: 700px) {
+      body { padding: 0; }
+      .page { padding: 16px 12px 40px; }
+      header {
+        grid-template-columns: 1fr;
+        padding: 20px 16px;
+        gap: 16px;
+      }
+      .profile-photo-wrap { width: 72px; height: 72px; }
+      .header-name h1 { font-size: 1.8rem; }
+      .contact-grid { grid-template-columns: 1fr; gap: 6px; }
+      .header-tags { gap: 6px; }
+      .body-grid { grid-template-columns: 1fr; }
+      .ref-grid { grid-template-columns: 1fr; }
+      .cert-card { flex-wrap: wrap; gap: 10px; }
+      .cert-badge-img { width: 48px; height: 48px; }
+      .qual-cert-grid { gap: 6px; }
+      .card { padding: 18px 16px; }
+      .entry-header { flex-direction: column; gap: 2px; }
+      .entry-date { align-self: flex-start; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+<!-- ══ HEADER ══ -->
+<header>
+  <div class="header-left">
+    <div class="header-name">
+      <h1>Steven Owen</h1>
+      <div class="role">Operations &amp; Infrastructure Management Professional</div>
+    </div>
+    <div class="contact-grid">
+      <div class="contact-item">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+        <a href="mailto:stevenowen2110@outlook.com">stevenowen2110@outlook.com</a>
+      </div>
+      <div class="contact-item">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.948V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+        [Phone available on request]
+      </div>
+      <div class="contact-item">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        [Location available on request]
+      </div>
+    </div>
+    <details class="details-toggle">
+      <summary>Personal Details</summary>
+      <div class="personal-grid">
+        <div class="personal-item">
+          <span class="p-label">Date of Birth</span>
+          <span class="p-value">[available on request]</span>
+        </div>
+        <div class="personal-item">
+          <span class="p-label">Nationality</span>
+          <span class="p-value">British</span>
+        </div>
+        <div class="personal-item">
+          <span class="p-label">Driving Licence</span>
+          <span class="p-value">Full UK</span>
+        </div>
+        <div class="personal-item">
+          <span class="p-label">NI Number</span>
+          <span class="p-value">[available on request]</span>
+        </div>
+      </div>
+    </details>
+    <div class="header-tags">
+      <span class="tag">Operations Management</span>
+      <span class="tag">Team Leadership</span>
+      <span class="tag">Health &amp; Safety</span>
+      <span class="tag">Budget Control</span>
+      <span class="tag">Process Optimisation</span>
+      <span class="tag">AWS Cloud Practitioner</span>
+      <span class="tag">Cyber Security L2</span>
+    </div>
+  </div>
+  <div class="profile-photo-wrap">
+    <img src="profile.jpg" alt="Steven Owen" class="profile-photo" />
+  </div>
+</header>
+
+<!-- ══ BODY ══ -->
+<div class="body-grid">
+
+<!-- ── Main column ── -->
+<main>
+
+  <!-- Profile -->
+  <div class="card">
+    <div class="section-title">Profile</div>
+    <p class="profile-text">Experienced General Manager with 18+ years leading operations, teams, and infrastructure in fast-paced production environments. Proven track record of maintaining complex systems, enforcing compliance, and driving efficiency. Holds AWS Cloud Practitioner and Cyber Security Level 2 certifications with a strong foundation in process control, resource management, and cross-functional coordination. Eager to apply operational expertise within a cloud computing environment.</p>
+  </div>
+
+  <!-- Certificates -->
+  <div class="card">
+    <div class="section-title">Certificates &amp; Qualifications</div>
+
+    <!-- Tech certs - prominent -->
+    <div style="font-size:0.7rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:12px;">Technical Certifications</div>
+    <div class="certs-grid">
+      <div class="cert-card" onclick="openLightbox('certs/cert-aws-cloud-practitioner.png','AWS Certified Cloud Practitioner')" style="cursor:pointer;">
+        <img src="https://images.credly.com/size/340x340/images/00634f82-b07f-4bbd-a6bb-53de397fc3a6/image.png"
+             alt="AWS Certified Cloud Practitioner badge" class="cert-badge-img" />
+        <div class="cert-info">
+          <h4>AWS Certified Cloud Practitioner</h4>
+          <p>Amazon Web Services (AWS)<br />Foundational Level Certification</p>
+          <span class="cert-link-label">🔗 Click to view certificate →</span>
+        </div>
+      </div>
+      <div class="cert-card">
+        <div class="cert-badge-img" style="display:flex;align-items:center;justify-content:center;background:rgba(79,142,247,0.08);border-radius:8px;font-size:2rem;">🔐</div>
+        <div class="cert-info">
+          <h4>Cyber Security Level 2</h4>
+          <p>Nationally Accredited<br />Cyber Security Fundamentals</p>
+          <span class="cert-link-label">✓ Certificate held</span>
+        </div>
+        <button onclick="openLightbox('certs/cert-cyber-security.jpg','Cyber Security Level 2')"
+           style="margin-left:auto;flex-shrink:0;font-size:0.75rem;color:var(--accent);background:transparent;cursor:pointer;border:1px solid rgba(79,142,247,0.3);border-radius:6px;padding:0.3rem 0.7rem;white-space:nowrap;align-self:center;">
+          View Certificate ↗
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="section-title">Experience</div>
+
+    <!-- Soil Fertility Services -->
+    <div class="entry">
+      <div class="entry-header">
+        <div class="entry-title">General Manager</div>
+        <span class="entry-date">2008 – Present</span>
+      </div>
+      <div class="entry-company">Soil Fertility Services · Kings Lynn, PE30 5BY</div>
+      <a href="https://www.soilfertilityservices.co.uk" target="_blank" rel="noopener noreferrer" class="company-link">
+        🌐 soilfertilityservices.co.uk
+      </a>
+      <ul>
+        <li>Oversee end-to-end site operations, ensuring production targets and quality standards are consistently met.</li>
+        <li>Manage, train, and develop a team of employees covering machinery operation, chemical handling, and safety compliance.</li>
+        <li>Inspect and maintain a diverse fleet of machinery including forklifts, screening, and mixing equipment.</li>
+        <li>Own and manage operational budgets, preventing overspend while hitting output targets.</li>
+        <li>Evaluate and onboard new plant machinery through supplier meetings and trials.</li>
+        <li>Coordinate haulage logistics and supply chain movement of products.</li>
+        <li>Ensure full compliance with health, safety, and environmental regulations across all operations.</li>
+      </ul>
+    </div>
+    <hr class="entry-divider" />
+
+    <!-- Howard Tenens -->
+    <div class="entry">
+      <div class="entry-header">
+        <div class="entry-title">Warehouseman</div>
+        <span class="entry-date">2006 – 2010</span>
+      </div>
+      <div class="entry-company">Howard Tenens Ltd · Boston Dock</div>
+      <a href="https://www.tenens.com" target="_blank" rel="noopener noreferrer" class="company-link">
+        🌐 tenens.com
+      </a>
+      <ul>
+        <li>Managed inbound goods scanning, damage inspection, and inventory coding.</li>
+        <li>Operated clamp trucks and shunted trailers; maintained warehouse cleanliness and organisation.</li>
+        <li>Provided office cover, demonstrating adaptability across operational and administrative functions.</li>
+      </ul>
+      <p class="entry-note">Also undertook a concurrent part-time role at Ces't (bar work) to fund driving licence.</p>
+    </div>
+    <hr class="entry-divider" />
+
+    <!-- George Adams -->
+    <div class="entry">
+      <div class="entry-header">
+        <div class="entry-title">Cold Store Warehouseman</div>
+        <span class="entry-date">2004 – 2006</span>
+      </div>
+      <div class="entry-company">George Adams &amp; Sons · Boston</div>
+      <a href="https://www.georgeadams1910.com" target="_blank" rel="noopener noreferrer" class="company-link">
+        🌐 georgeadams1910.com
+      </a>
+      <ul>
+        <li>Managed cold-chain logistics for meat products, ensuring correct storage locations and dispatch readiness.</li>
+        <li>Coordinated closely with production teams to maintain a steady supply pipeline.</li>
+        <li>Picked and shrink-wrapped orders for delivery with correct barcodes.</li>
+      </ul>
+    </div>
+    <hr class="entry-divider" />
+
+    <!-- Geest -->
+    <div class="entry">
+      <div class="entry-header">
+        <div class="entry-title">Packing &amp; Filling Operative</div>
+        <span class="entry-date">2001 – 2004</span>
+      </div>
+      <div class="entry-company">Geest Prepared Foods · Spalding</div>
+      <a href="https://www.bakkavor.com" target="_blank" rel="noopener noreferrer" class="company-link">
+        🌐 bakkavor.com <span style="font-weight:400;opacity:0.7;">(Geest, now Bakkavor)</span>
+      </a>
+      <ul>
+        <li>Operated counterbalance forklift and managed high-risk filling processes.</li>
+        <li>Maintained pipework, vessels, and equipment readiness; completed efficiency and compliance paperwork.</li>
+        <li>Ensured product flow and area hygiene across packing and filling departments.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- References -->
+  <div class="card">
+    <div class="section-title">References</div>
+    <div class="ref-grid">
+      <div class="ref-card">
+        <div class="ref-name">Georgina Titcombe</div>
+        <div class="ref-role">HR Manager – Soil Fertility Services</div>
+        <div class="ref-detail">
+          [Address available on request]<br />
+          <a href="mailto:Georgina@soilfertilityservices.co.uk" style="color:var(--accent);text-decoration:none;">Georgina@soilfertilityservices.co.uk</a><br />
+          Tel: [available on request]
+        </div>
+      </div>
+      <div class="ref-card">
+        <div class="ref-name">Maria Kenny</div>
+        <div class="ref-role">Personal Reference</div>
+        <div class="ref-detail">[Address available on request]<br />Tel: [available on request]</div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- ── Sidebar ── -->
+<aside class="sidebar">
+
+  <!-- Skills -->
+  <div class="card">
+    <div class="section-title">Skills</div>
+    <div class="skill-group">
+      <div class="skill-group-label">Operations</div>
+      <div class="skill-tags">
+        <span class="skill-tag">Site Management</span>
+        <span class="skill-tag">Budget Control</span>
+        <span class="skill-tag">Logistics</span>
+        <span class="skill-tag">Procurement</span>
+        <span class="skill-tag">Vendor Relations</span>
+      </div>
+    </div>
+    <div class="skill-group">
+      <div class="skill-group-label">Leadership</div>
+      <div class="skill-tags">
+        <span class="skill-tag">Team Management</span>
+        <span class="skill-tag">Training &amp; Dev</span>
+        <span class="skill-tag">Performance Mgmt</span>
+      </div>
+    </div>
+    <div class="skill-group">
+      <div class="skill-group-label">Compliance &amp; Safety</div>
+      <div class="skill-tags">
+        <span class="skill-tag">H&amp;S Regulations</span>
+        <span class="skill-tag">COSHH</span>
+        <span class="skill-tag">PPE Management</span>
+        <span class="skill-tag">Risk Assessment</span>
+      </div>
+    </div>
+    <div class="skill-group">
+      <div class="skill-group-label">Technology</div>
+      <div class="skill-tags">
+        <span class="skill-tag">AWS Cloud</span>
+        <span class="skill-tag">Cyber Security L2</span>
+        <span class="skill-tag">Systems Monitoring</span>
+        <span class="skill-tag">Process Automation</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Qualifications -->
+  <div class="card">
+    <div class="section-title">Qualifications &amp; Licences</div>
+
+    <div class="qual-group-label">🏭 Management</div>
+    <div class="qual-cert-grid">
+      <div class="qual-tile" onclick="openLightbox('certs/cert-operations-manager-l5.jpg','Operations Manager Level 5')">
+        <span>Operations Manager Level 5</span><span class="view-cert">View ↗</span>
+      </div>
+      <div class="qual-tile" onclick="openLightbox('certs/cert-iosh.jpg','IOSH Managing Safely')">
+        <span>IOSH Managing Safely</span><span class="view-cert">View ↗</span>
+      </div>
+    </div>
+
+    <div class="qual-group-label">🦺 Health &amp; Safety</div>
+    <div class="qual-cert-grid">
+      <div class="qual-tile" onclick="openLightbox('certs/cert-health-safety.jpg','Health &amp; Safety')">
+        <span>Health &amp; Safety</span><span class="view-cert">View ↗</span>
+      </div>
+      <div class="qual-tile" onclick="openLightbox('certs/cert-first-aid.jpg','First Aid')">
+        <span>First Aid <span class="refresher-badge">+1 refresher</span></span><span class="view-cert">View ↗</span>
+      </div>
+      <div class="qual-tile" onclick="openLightbox('certs/cert-coshh.jpg','COSHH')">
+        <span>COSHH <span class="refresher-badge">+1 refresher</span></span><span class="view-cert">View ↗</span>
+      </div>
+      <div class="qual-tile" onclick="openLightbox('certs/cert-safety-data-sheets.jpg','Safety Data Sheets')">
+        <span>Safety Data Sheets</span><span class="view-cert">View ↗</span>
+      </div>
+    </div>
+
+    <div class="qual-group-label">🚜 Plant &amp; Machinery</div>
+    <div class="qual-cert-grid">
+      <div class="qual-tile" onclick="openLightbox('certs/cert-forklift.png','Counterbalance Forklift')">
+        <span>Counterbalance Forklift <span class="refresher-badge">+2 refreshers</span></span><span class="view-cert">View ↗</span>
+      </div>
+      <div class="qual-tile" onclick="openLightbox('certs/cert-telehandler.png','Telehandler')">
+        <span>Telehandler <span class="refresher-badge">+1 refresher</span></span><span class="view-cert">View ↗</span>
+      </div>
+    </div>
+
+    <div class="qual-group-label">🍽️ Food &amp; Hygiene</div>
+    <div class="qual-cert-grid">
+      <div class="qual-tile" onclick="openLightbox('certs/cert-food-hygiene.jpg','Food Hygiene')">
+        <span>Food Hygiene</span><span class="view-cert">View ↗</span>
+      </div>
+      <div class="qual-tile" onclick="openLightbox('certs/cert-food-drink-l2.jpg','Food &amp; Drink Level 2')">
+        <span>Food &amp; Drink Level 2</span><span class="view-cert">View ↗</span>
+      </div>
+    </div>
+
+    <div class="qual-group-label">🪪 Licences</div>
+    <div class="qual-cert-grid">
+      <div class="qual-tile" onclick="openLightbox('certs/cert-biiab.jpg','BIIAB Personal Licence')">
+        <span>BIIAB Personal Licence</span><span class="view-cert">View ↗</span>
+      </div>
+    </div>
+
+    <div class="qual-group-label">📚 Personal Development</div>
+    <div class="qual-cert-grid">
+      <div class="qual-tile" onclick="openLightbox('certs/cert-english.jpg','English')">
+        <span>English</span><span class="view-cert">View ↗</span>
+      </div>
+      <div class="qual-tile" onclick="openLightbox('certs/cert-time-management.jpg','Time Management')">
+        <span>Time Management</span><span class="view-cert">View ↗</span>
+      </div>
+      <div class="qual-tile" onclick="openLightbox('certs/cert-army-cadets.jpg','Army Cadets')">
+        <span>Army Cadets</span><span class="view-cert">View ↗</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lightbox -->
+  <div id="lightbox" onclick="closeLightbox()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:1000;align-items:center;justify-content:center;flex-direction:column;gap:12px;cursor:pointer;">
+    <div style="font-size:0.8rem;color:rgba(255,255,255,0.5);margin-bottom:4px;">Click anywhere to close</div>
+    <img id="lightbox-img" src="" alt="" style="max-width:90vw;max-height:80vh;border-radius:8px;box-shadow:0 20px 60px rgba(0,0,0,0.8);" onclick="event.stopPropagation()" />
+    <div id="lightbox-caption" style="color:#fff;font-size:0.95rem;font-weight:600;"></div>
+  </div>
+
+  <!-- Education -->
+  <div class="card">
+    <div class="section-title">Education</div>
+    <div class="entry-title" style="font-size:0.9rem; margin-bottom:6px;">Giles Secondary School</div>
+    <div style="font-size:0.8rem; color:var(--muted); margin-bottom:10px;">GCSEs Grade A–C</div>
+    <div class="skill-tags">
+      <span class="skill-tag">Mathematics</span>
+      <span class="skill-tag">English</span>
+      <span class="skill-tag">Science</span>
+      <span class="skill-tag">Design Technology</span>
+      <span class="skill-tag">Geography</span>
+      <span class="skill-tag">Physical Education</span>
+    </div>
+  </div>
+
+
+</aside>
+</div><!-- end body-grid -->
+</div><!-- end page -->
+  <script>
+    function openLightbox(src, caption) {
+      const lb = document.getElementById('lightbox');
+      document.getElementById('lightbox-img').src = src;
+      document.getElementById('lightbox-caption').textContent = caption;
+      lb.style.display = 'flex';
+    }
+    function closeLightbox() {
+      document.getElementById('lightbox').style.display = 'none';
+    }
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closeLightbox();
+    });
+  </script>
+</body>
+</html>

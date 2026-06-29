@@ -1,0 +1,359 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Steven Owen Portfolio - Cloud Resume Infrastructure
+
+Parameters:
+  DomainName:
+    Type: String
+    Default: stevenowenaws.com
+    Description: Custom domain name for the portfolio site
+
+  EmailAddress:
+    Type: String
+    Default: stevenowen2110@outlook.com
+    Description: Email address for contact form notifications
+
+Resources:
+
+  # ══════════════════════════════════════════════════════════════
+  # S3 BUCKET - Static website hosting
+  # ══════════════════════════════════════════════════════════════
+  WebsiteBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub '${DomainName}-website'
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: index.html
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+
+  WebsiteBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref WebsiteBucket
+      PolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: cloudfront.amazonaws.com
+            Action: s3:GetObject
+            Resource: !Sub '${WebsiteBucket.Arn}/*'
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}'
+
+
+  # ══════════════════════════════════════════════════════════════
+  # CLOUDFRONT - CDN Distribution
+  # ══════════════════════════════════════════════════════════════
+  CloudFrontOriginAccessControl:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Name: !Sub '${DomainName}-oac'
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
+
+  CloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Origins:
+          - Id: S3Origin
+            DomainName: !GetAtt WebsiteBucket.RegionalDomainName
+            OriginAccessControlId: !Ref CloudFrontOriginAccessControl
+            S3OriginConfig:
+              OriginAccessIdentity: ''
+        Enabled: true
+        DefaultRootObject: index.html
+        DefaultCacheBehavior:
+          TargetOriginId: S3Origin
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods: [GET, HEAD]
+          CachedMethods: [GET, HEAD]
+          ForwardedValues:
+            QueryString: false
+            Cookies:
+              Forward: none
+          Compress: true
+        ViewerCertificate:
+          CloudFrontDefaultCertificate: true
+        Comment: Steven Owen Portfolio Site
+
+
+  # ══════════════════════════════════════════════════════════════
+  # DYNAMODB - Visitor Counter Table
+  # ══════════════════════════════════════════════════════════════
+  VisitorCounterTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: visitor-counter
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+
+  # ══════════════════════════════════════════════════════════════
+  # IAM ROLES - Lambda execution roles (least privilege)
+  # ══════════════════════════════════════════════════════════════
+  VisitorCounterRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: visitor-counter-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: visitor-counter-dynamodb
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:UpdateItem
+                  - dynamodb:GetItem
+                Resource: !GetAtt VisitorCounterTable.Arn
+        - PolicyName: visitor-counter-logs
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: '*'
+
+  ContactFormRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: contact-form-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: contact-form-ses
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: ses:SendEmail
+                Resource: '*'
+        - PolicyName: contact-form-logs
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: '*'
+
+
+  # ══════════════════════════════════════════════════════════════
+  # LAMBDA - Visitor Counter Function
+  # ══════════════════════════════════════════════════════════════
+  VisitorCounterFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: visitor-counter
+      Runtime: python3.12
+      Handler: index.lambda_handler
+      Role: !GetAtt VisitorCounterRole.Arn
+      Code:
+        ZipFile: |
+          import json
+          import boto3
+
+          dynamodb = boto3.resource('dynamodb')
+          table = dynamodb.Table('visitor-counter')
+
+          def lambda_handler(event, context):
+              response = table.update_item(
+                  Key={'id': 'visitors'},
+                  UpdateExpression='ADD #c :val',
+                  ExpressionAttributeNames={'#c': 'count'},
+                  ExpressionAttributeValues={':val': 1},
+                  ReturnValues='UPDATED_NEW'
+              )
+              count = int(response['Attributes']['count'])
+              return {
+                  'statusCode': 200,
+                  'headers': {
+                      'Content-Type': 'application/json',
+                      'Access-Control-Allow-Origin': 'https://stevenowenaws.com'
+                  },
+                  'body': json.dumps({'count': count})
+              }
+
+  # ══════════════════════════════════════════════════════════════
+  # LAMBDA - Contact Form Function
+  # ══════════════════════════════════════════════════════════════
+  ContactFormFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: contact-form
+      Runtime: python3.12
+      Handler: index.lambda_handler
+      Role: !GetAtt ContactFormRole.Arn
+      Code:
+        ZipFile: |
+          import json
+          import boto3
+
+          ses = boto3.client('ses', region_name='eu-west-2')
+
+          def lambda_handler(event, context):
+              try:
+                  body = json.loads(event.get('body', '{}'))
+                  name = body.get('name', 'Unknown')
+                  email = body.get('email', 'Unknown')
+                  message = body.get('message', 'No message')
+
+                  if len(name) > 100 or len(email) > 150 or len(message) > 2000:
+                      return {
+                          'statusCode': 400,
+                          'headers': {
+                              'Content-Type': 'application/json',
+                              'Access-Control-Allow-Origin': 'https://stevenowenaws.com'
+                          },
+                          'body': json.dumps({'error': 'Input too long'})
+                      }
+
+                  ses.send_email(
+                      Source='stevenowen2110@outlook.com',
+                      Destination={'ToAddresses': ['stevenowen2110@outlook.com']},
+                      Message={
+                          'Subject': {'Data': f'Portfolio Contact: {name}'},
+                          'Body': {'Text': {'Data': f'Name: {name}\nEmail: {email}\n\nMessage:\n{message}'}}
+                      }
+                  )
+
+                  return {
+                      'statusCode': 200,
+                      'headers': {
+                          'Content-Type': 'application/json',
+                          'Access-Control-Allow-Origin': 'https://stevenowenaws.com'
+                      },
+                      'body': json.dumps({'message': 'Email sent successfully'})
+                  }
+
+              except Exception as e:
+                  return {
+                      'statusCode': 500,
+                      'headers': {
+                          'Content-Type': 'application/json',
+                          'Access-Control-Allow-Origin': 'https://stevenowenaws.com'
+                      },
+                      'body': json.dumps({'error': str(e)})
+                  }
+
+
+  # ══════════════════════════════════════════════════════════════
+  # API GATEWAY - HTTP API
+  # ══════════════════════════════════════════════════════════════
+  PortfolioApi:
+    Type: AWS::ApiGatewayV2::Api
+    Properties:
+      Name: portfolio-api
+      ProtocolType: HTTP
+      CorsConfiguration:
+        AllowOrigins:
+          - 'https://stevenowenaws.com'
+        AllowMethods:
+          - GET
+          - POST
+          - OPTIONS
+        AllowHeaders:
+          - content-type
+
+  ApiStage:
+    Type: AWS::ApiGatewayV2::Stage
+    Properties:
+      ApiId: !Ref PortfolioApi
+      StageName: $default
+      AutoDeploy: true
+      DefaultRouteSettings:
+        ThrottlingRateLimit: 10
+        ThrottlingBurstLimit: 20
+
+  # Visitor Counter Route
+  VisitorCounterIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref PortfolioApi
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !GetAtt VisitorCounterFunction.Arn
+      PayloadFormatVersion: '2.0'
+
+  VisitorCounterRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref PortfolioApi
+      RouteKey: GET /count
+      Target: !Sub 'integrations/${VisitorCounterIntegration}'
+
+  # Contact Form Route
+  ContactFormIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref PortfolioApi
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !GetAtt ContactFormFunction.Arn
+      PayloadFormatVersion: '2.0'
+
+  ContactFormRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref PortfolioApi
+      RouteKey: POST /contact
+      Target: !Sub 'integrations/${ContactFormIntegration}'
+
+  # Lambda permissions for API Gateway
+  VisitorCounterPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref VisitorCounterFunction
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${PortfolioApi}/*'
+
+  ContactFormPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref ContactFormFunction
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${PortfolioApi}/*'
+
+# ══════════════════════════════════════════════════════════════
+# OUTPUTS
+# ══════════════════════════════════════════════════════════════
+Outputs:
+  WebsiteBucketName:
+    Description: S3 bucket for website files
+    Value: !Ref WebsiteBucket
+
+  CloudFrontURL:
+    Description: CloudFront distribution URL
+    Value: !Sub 'https://${CloudFrontDistribution.DomainName}'
+
+  ApiEndpoint:
+    Description: API Gateway endpoint URL
+    Value: !Sub 'https://${PortfolioApi}.execute-api.${AWS::Region}.amazonaws.com'
