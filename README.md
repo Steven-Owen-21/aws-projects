@@ -90,3 +90,17 @@ graph LR
 ---
 
 ## Tech Stack
+
+| Service | Purpose |
+|---------|---------|
+| **S3** | Static website hosting |
+| **CloudFront** | CDN, HTTPS, caching |
+| **Route 53** | DNS management |
+| **API Gateway** | HTTP API with throttling |
+| **Lambda** | Serverless compute (Python) |
+| **DynamoDB** | Visitor counter storage |
+| **SES** | Contact form email delivery |
+| **IAM** | Least privilege access control |
+| **GitHub Actions** | CI/CD with OIDC |
+| **CloudFormation** | Infrastructure as Code |
+
