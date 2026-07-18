@@ -52,16 +52,28 @@ graph TD
 
 ## CI/CD Pipeline
 
-```text
-┌──────────────┐     ┌───────────────────┐     ┌─────────────┐     ┌────────────┐
-│  Developer   │────▶│  GitHub Actions   │────▶│  S3 Sync    │────▶│ CloudFront │
-│  git push    │     │  (OIDC Auth)      │     │  Upload     │     │ Invalidate │
-└──────────────┘     └───────────────────┘     └─────────────┘     └────────────┘
+```mermaid
+graph LR
+    %% Styling Definitions
+    classDef dev fill:#f9f9f9,stroke:#333,stroke-width:2px;
+    classDef actions fill:#2088FF,stroke:#333,stroke-width:1px,color:#fff;
+    classDef aws fill:#FF9900,stroke:#333,stroke-width:1px,color:#fff;
+
+    %% Nodes
+    Dev["💻 Developer<br>git push main"]:::dev
+    GHA["🐙 GitHub Actions<br>(OIDC Authentication)"]:::actions
+    S3Sync["🪣 Amazon S3<br>Sync & Upload Assets"]:::aws
+    CFInv["⚡ Amazon CloudFront<br>Cache Invalidation"]:::aws
+
+    %% Connections
+    Dev -->|Triggers Workflow| GHA
+    GHA -->|Secure Deploy| S3Sync
+    S3Sync -->|Refresh Edge CDN| CFInv
 ```
 
-- Push to `main` branch triggers automatic deployment
-- Uses OIDC identity federation (no stored access keys)
-- Syncs files to S3 and invalidates CloudFront cache
+- **Branch Protection:** Push or merge to the `main` branch triggers an automatic, hands-off deployment.
+- **Keyless Security:** Uses OpenID Connect (OIDC) identity federation so no permanent AWS access keys are stored in GitHub.
+- **Global Updates:** Synchronises front-end changes to S3 and immediately flushes the CloudFront cache so updates are live globally in seconds.
 
 ---
 
@@ -78,9 +90,3 @@ graph TD
 ---
 
 ## Tech Stack
-
-
----
-
-## CI/CD Pipeline
-
