@@ -52,3 +52,35 @@ graph TD
 
 ## CI/CD Pipeline
 
+```text
+┌──────────────┐     ┌───────────────────┐     ┌─────────────┐     ┌────────────┐
+│  Developer   │────▶│  GitHub Actions   │────▶│  S3 Sync    │────▶│ CloudFront │
+│  git push    │     │  (OIDC Auth)      │     │  Upload     │     │ Invalidate │
+└──────────────┘     └───────────────────┘     └─────────────┘     └────────────┘
+```
+
+- Push to `main` branch triggers automatic deployment
+- Uses OIDC identity federation (no stored access keys)
+- Syncs files to S3 and invalidates CloudFront cache
+
+---
+
+## Security Measures
+
+- **CORS** locked to `stevenowenaws.com` only
+- **API throttling** — rate limited to prevent abuse
+- **IAM least privilege** — Lambda roles scoped to specific actions
+- **OIDC** — no long-lived credentials for CI/CD
+- **Honeypot field** — bot protection on contact form
+- **Input validation** — client and server-side length limits
+- **HTTPS** enforced via CloudFront
+
+---
+
+## Tech Stack
+
+
+---
+
+## CI/CD Pipeline
+
